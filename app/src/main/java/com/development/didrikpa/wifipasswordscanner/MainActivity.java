@@ -93,6 +93,7 @@ public class MainActivity extends Activity {
         System.out.println(wifiManager.getScanResults());
         wifiManager.startScan();
         List<ScanResult> scanResults = wifiManager.getScanResults();
+        SSIDs.clear();
         if (scanResults.size() > 0) {
             for (ScanResult result : scanResults) {
                 System.out.println(result.SSID);
