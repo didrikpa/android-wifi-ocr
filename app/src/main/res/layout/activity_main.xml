@@ -4,16 +4,6 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <Button
-        android:text="@string/search_for_networks"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/search_for_wifi_networks_button"
-        android:onClick="searchForWifiNetworks"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
-
     <ToggleButton
         android:text="ToggleButton"
         android:layout_width="wrap_content"
@@ -28,7 +18,19 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/scan_results"
-        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@+id/toggleWifi"
+        android:layout_above="@+id/search_for_wifi_networks_button"
+        />
+
+    <Button
+        android:text="@string/search_for_networks"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/search_for_wifi_networks_button"
+        android:onClick="searchForWifiNetworks"
+        android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true" />
 

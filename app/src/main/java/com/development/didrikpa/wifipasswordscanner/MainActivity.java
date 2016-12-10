@@ -11,10 +11,12 @@ import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,8 +29,10 @@ public class MainActivity extends Activity {
     private WifiManager wifiManager;
     private List<ScanResult> scanResults;
     private List<String> SSIDs = new ArrayList<>();
-    ListView scannedResults;
     private ArrayAdapter<String> adapter;
+
+    private ToggleButton wifiToggle;
+
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -47,10 +51,16 @@ public class MainActivity extends Activity {
         setContentView(R.layout.activity_main);
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, SSIDs);
-        scannedResults = (ListView) findViewById(R.id.scan_results);
+        ListView scannedResults = (ListView) findViewById(R.id.scan_results);
+        wifiToggle = (ToggleButton) findViewById(R.id.toggleWifi);
         scannedResults.setAdapter(adapter);
         wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
         wifiManager.startScan();
+        if (wifiManager.isWifiEnabled()) {
+            wifiToggle.setChecked(true);
+        } else {
+            wifiToggle.setChecked(false);
+        }
 
         registerReceiver(broadcastReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -66,8 +76,8 @@ public class MainActivity extends Activity {
 
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions,
-                                           int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
         if (requestCode == PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION
                 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
             wifiManager.getScanResults();
@@ -77,6 +87,13 @@ public class MainActivity extends Activity {
     @Override
     public void onStart() {
         super.onStart();
+        wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+
+        if (wifiManager.isWifiEnabled()) {
+            wifiToggle.setChecked(true);
+        } else {
+            wifiToggle.setChecked(false);
+        }
     }
 
     public void turnWifiOnOrOff(View view) {
@@ -88,21 +105,20 @@ public class MainActivity extends Activity {
     }
 
     public void searchForWifiNetworks(View view) {
-
-        System.out.println(wifiManager.startScan() + " " + WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
-        System.out.println(wifiManager.getScanResults());
         wifiManager.startScan();
-        List<ScanResult> scanResults = wifiManager.getScanResults();
+        scanResults = wifiManager.getScanResults();
         SSIDs.clear();
         if (scanResults.size() > 0) {
             for (ScanResult result : scanResults) {
-                System.out.println(result.SSID);
                 SSIDs.add(result.SSID);
             }
 
 
         }
         adapter.notifyDataSetChanged();
+    }
+
+    public void connectToWifiNetwork(View view) {
 
 
     }
