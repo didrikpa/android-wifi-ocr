@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">WiFiPasswordScanner</string>
+    <string name="search_for_networks">Search for networks</string>
 </resources>

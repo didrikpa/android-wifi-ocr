@@ -1,88 +1,110 @@
 package com.development.didrikpa.wifipasswordscanner;
 
+import android.Manifest;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
-
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-
-import android.graphics.Color;
+import android.content.pm.PackageManager;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiManager;
+import android.os.Build;
 import android.os.Bundle;
-
-import android.view.Menu;
-import android.view.MenuItem;
+import android.support.annotation.RequiresApi;
 import android.view.View;
-
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class MainActivity extends Activity {
-    ListView lv;
-    WifiManager wifi;
-    String wifis[];
-    WifiScanReceiver wifiReciever;
+
+    private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1001;
+
+    private WifiManager wifiManager;
+    private List<ScanResult> scanResults;
+    private List<String> SSIDs = new ArrayList<>();
+    ListView scannedResults;
+    private ArrayAdapter<String> adapter;
+
+    private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
+        @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Objects.equals(intent.getAction(), WifiManager.SCAN_RESULTS_AVAILABLE_ACTION)) {
+                scanResults = wifiManager.getScanResults();
+            }
+        }
+    };
+
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        lv = (ListView) findViewById(R.id.listView);
 
-        wifi = (WifiManager) getSystemService(Context.WIFI_SERVICE);
-        wifiReciever = new WifiScanReceiver();
-        wifi.startScan();
-    }
+        adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, SSIDs);
+        scannedResults = (ListView) findViewById(R.id.scan_results);
+        scannedResults.setAdapter(adapter);
+        wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+        wifiManager.startScan();
 
-    protected void onPause() {
-        unregisterReceiver(wifiReciever);
-        super.onPause();
-    }
+        registerReceiver(broadcastReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                    PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION);
 
-    protected void onResume() {
-        registerReceiver(wifiReciever, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
-        super.onResume();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        } else {
+            wifiManager.getScanResults();
         }
-        return super.onOptionsItemSelected(item);
+
+
     }
 
-    private class WifiScanReceiver extends BroadcastReceiver {
-        public void onReceive(Context c, Intent intent) {
-            List<ScanResult> wifiScanList = wifi.getScanResults();
-            wifis = new String[wifiScanList.size()];
 
-            for (int i = 0; i < wifiScanList.size(); i++) {
-                wifis[i] = ((wifiScanList.get(i)).toString());
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,
+                                           int[] grantResults) {
+        if (requestCode == PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION
+                && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            wifiManager.getScanResults();
+        }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+    }
+
+    public void turnWifiOnOrOff(View view) {
+        if (wifiManager.isWifiEnabled()) {
+            wifiManager.setWifiEnabled(false);
+        } else if (!wifiManager.isWifiEnabled()) {
+            wifiManager.setWifiEnabled(true);
+        }
+    }
+
+    public void searchForWifiNetworks(View view) {
+
+        System.out.println(wifiManager.startScan() + " " + WifiManager.SCAN_RESULTS_AVAILABLE_ACTION);
+        System.out.println(wifiManager.getScanResults());
+        wifiManager.startScan();
+        List<ScanResult> scanResults = wifiManager.getScanResults();
+        if (scanResults.size() > 0) {
+            for (ScanResult result : scanResults) {
+                System.out.println(result.SSID);
+                SSIDs.add(result.SSID);
             }
-            lv.setAdapter(new ArrayAdapter<String>(getApplicationContext(), android.R.layout.simple_list_item_1, wifis));
+
+
         }
+        adapter.notifyDataSetChanged();
+
+
     }
+
+
 }
