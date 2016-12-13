@@ -16,6 +16,8 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
+import android.text.InputType;
+import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
@@ -61,10 +63,14 @@ public class MainActivity extends Activity {
 
     private OnItemClickListener onItemClickListener = new OnItemClickListener() {
         @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        public void onItemClick(final AdapterView<?> parent, View view, int position, long id) {
             pos = position;
             ssid = (String) parent.getItemAtPosition(position);
             final EditText editText = new EditText(MainActivity.this);
+            editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
+            editText.setGravity(Gravity.CENTER);
+            editText.setWidth(200);
+
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
             alertDialog.setTitle(ssid);
             alertDialog.setMessage("Please enter password");
@@ -88,7 +94,7 @@ public class MainActivity extends Activity {
                             wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
                             wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
                             wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-                            wifiConfiguration.preSharedKey = "\"" + ssid + "\"";
+                            wifiConfiguration.preSharedKey = "\"" + password + "\"";
                             break;
                         case "WEP":
                             wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
@@ -101,7 +107,7 @@ public class MainActivity extends Activity {
                             wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
                             wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
 
-                            wifiConfiguration.wepKeys[0] = "\"" + ssid + "\"";
+                            wifiConfiguration.wepKeys[0] = "\"" + password + "\"";
                             wifiConfiguration.wepTxKeyIndex = 0;
                             break;
                         case "Open":
@@ -132,6 +138,13 @@ public class MainActivity extends Activity {
 
                 }
 
+            });
+            alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Toast.makeText(getApplicationContext(), "Cancelled ", Toast.LENGTH_SHORT).show();
+
+                }
             });
             alertDialog.show();
 
