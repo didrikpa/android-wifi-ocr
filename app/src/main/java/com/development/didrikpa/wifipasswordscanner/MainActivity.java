@@ -37,6 +37,9 @@ public class MainActivity extends Activity {
 
     private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1001;
 
+    private static final String PUBLIC_STATIC_STRING_IDENTIFIER = "Wifi_Password";
+
+
     private WifiManager wifiManager;
     private WifiConfiguration wifiConfiguration;
     private List<ScanResult> scanResults;
@@ -69,7 +72,7 @@ public class MainActivity extends Activity {
             final EditText editText = new EditText(MainActivity.this);
             editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             editText.setGravity(Gravity.CENTER);
-            editText.setWidth(200);
+            editText.setWidth(50);
 
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
             alertDialog.setTitle(ssid);
@@ -146,6 +149,13 @@ public class MainActivity extends Activity {
 
                 }
             });
+            alertDialog.setNeutralButton("Camera", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+                    startActivityForResult(intent, 1);
+                }
+            });
             alertDialog.show();
 
         }
@@ -176,11 +186,13 @@ public class MainActivity extends Activity {
 
         registerReceiver(broadcastReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                    PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION);
+            requestPermissions(new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION}, PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION);
 
         } else {
             wifiManager.getScanResults();
+        }
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 200);
         }
     }
 
@@ -193,6 +205,7 @@ public class MainActivity extends Activity {
             wifiManager.getScanResults();
         }
     }
+
 
     @Override
     public void onStart() {
@@ -209,6 +222,20 @@ public class MainActivity extends Activity {
             adapter.notifyDataSetChanged();
             wifiToggle.setChecked(false);
         }
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                String pass = data.getStringExtra(PUBLIC_STATIC_STRING_IDENTIFIER);
+                if (pass != null) {
+                    System.out.println(pass);
+                }
+            }
+        }
+
     }
 
     public void turnWifiOnOrOff(View view) {
@@ -228,13 +255,9 @@ public class MainActivity extends Activity {
         if (scanResults.size() > 0) {
             for (ScanResult result : scanResults) {
                 if (!SSIDs.contains(result.SSID) && !result.SSID.equals("")) {
-                    System.out.println(result.SSID);
-                    System.out.println(result.capabilities);
                     SSIDs.add(result.SSID);
                 }
             }
-
-
         }
         adapter.notifyDataSetChanged();
     }
