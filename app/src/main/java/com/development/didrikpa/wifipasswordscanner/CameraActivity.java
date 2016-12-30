@@ -9,9 +9,11 @@ import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
 import android.media.ExifInterface;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -40,9 +42,6 @@ public class CameraActivity extends Activity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (checkCameraHardware(this)) {
-
-        }
         setContentView(R.layout.activity_camera);
 
         _image = (ImageView) findViewById(R.id.imageView);
@@ -58,7 +57,6 @@ public class CameraActivity extends Activity {
         _path = Environment.getExternalStorageDirectory() + "/DCIM/100ANDRO/make_machine_example.jpg";
 
 
-
     }
 
     protected void startCameraActivity() {
@@ -71,6 +69,7 @@ public class CameraActivity extends Activity {
         startActivityForResult(intent, 0);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         Log.i("MakeMachine", "resultCode: " + resultCode);
@@ -94,6 +93,7 @@ public class CameraActivity extends Activity {
         outState.putBoolean(CameraActivity.PHOTO_TAKEN, _taken);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         try {
@@ -107,6 +107,7 @@ public class CameraActivity extends Activity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     protected void onPhotoTaken() throws Exception {
         _taken = true;
 
@@ -149,28 +150,23 @@ public class CameraActivity extends Activity {
 
         _image.setImageBitmap(bitmap);
 
-        _field.setVisibility(View.GONE);
 
         TessBaseAPI baseAPI = new TessBaseAPI();
+        baseAPI.setDebug(true);
 
         File myDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        for (int i = 0; i < myDir.listFiles().length; i++) {
-            if (myDir.listFiles()[i].equals("/storage/emulated/0/Download/eng.traineddata")){
-                baseAPI.init(myDir.listFiles()[i].toString(), "eng");
-            }
-        }
+        baseAPI.init(myDir.toString(), "eng");
         baseAPI.setImage(bitmap);
         String recognizedText = baseAPI.getUTF8Text();
+        _field.setText(recognizedText);
         System.out.println(recognizedText);
         baseAPI.end();
-
-
     }
 
 
     public void backToMain(View view) {
         Intent resultIntent = new Intent();
-        resultIntent.putExtra(PUBLIC_STATIC_STRING_IDENTIFIER, "pass");
+        resultIntent.putExtra(PUBLIC_STATIC_STRING_IDENTIFIER, _field.toString());
         setResult(Activity.RESULT_OK, resultIntent);
         finish();
     }

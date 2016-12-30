@@ -25,4 +25,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:24.1.1'
     compile 'com.google.android.gms:play-services-vision:10.0.1'
     compile 'com.rmtheis:tess-two:6.1.1'
+    compile group: 'com.google.zxing', name: 'core', version: '3.3.0'
+
 }
