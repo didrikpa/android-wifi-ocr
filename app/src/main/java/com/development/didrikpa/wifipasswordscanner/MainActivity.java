@@ -9,7 +9,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
@@ -283,6 +282,17 @@ public class MainActivity extends Activity {
 
         if (wifiManager.isWifiEnabled()) {
             wifiToggle.setChecked(true);
+            wifiManager.startScan();
+            scanResults = wifiManager.getScanResults();
+            SSIDs.clear();
+            if (scanResults.size() > 0) {
+                for (ScanResult result : scanResults) {
+                    if (!SSIDs.contains(result.SSID) && !result.SSID.equals("")) {
+                        SSIDs.add(result.SSID);
+                    }
+                }
+            }
+            adapter.notifyDataSetChanged();
         } else {
             SSIDs.clear();
             adapter.notifyDataSetChanged();
@@ -309,11 +319,24 @@ public class MainActivity extends Activity {
             SSIDs.clear();
             adapter.notifyDataSetChanged();
             wifiManager.setWifiEnabled(false);
-            wifiToggle.setBackgroundColor(Color.DKGRAY);
         } else if (!wifiManager.isWifiEnabled()) {
             wifiManager.setWifiEnabled(true);
-            wifiToggle.setBackgroundColor(Color.BLUE);
+            wifiManager.startScan();
+            scanResults = wifiManager.getScanResults();
+            SSIDs.clear();
+            if (scanResults.size() > 0) {
+                for (ScanResult result : scanResults) {
+                    if (!SSIDs.contains(result.SSID) && !result.SSID.equals("")) {
+                        SSIDs.add(result.SSID);
+                    }
+                }
+            }
+            adapter.notifyDataSetChanged();
         }
+
+    }
+
+    private void connectToWifi(String security){
 
     }
 
