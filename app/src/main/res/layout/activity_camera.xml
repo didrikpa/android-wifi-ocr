@@ -20,11 +20,11 @@
         android:id="@+id/imageView"
         android:layout_weight="0.92" />
 
-    <TextView
-        android:text="TextView"
+    <EditText
+        android:text=""
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/textView"
+        android:id="@+id/editText"
         android:layout_weight="0.04" />
 
     <Button

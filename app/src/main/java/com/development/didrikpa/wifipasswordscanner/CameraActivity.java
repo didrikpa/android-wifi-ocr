@@ -17,8 +17,8 @@ import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
@@ -29,7 +29,7 @@ public class CameraActivity extends Activity {
 
     protected Button _button;
     protected ImageView _image;
-    protected TextView _field;
+    protected EditText _field;
     protected String _path;
     protected boolean _taken;
 
@@ -45,7 +45,7 @@ public class CameraActivity extends Activity {
         setContentView(R.layout.activity_camera);
 
         _image = (ImageView) findViewById(R.id.imageView);
-        _field = (TextView) findViewById(R.id.textView);
+        _field = (EditText) findViewById(R.id.editText);
         _button = (Button) findViewById(R.id.button2);
         _button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -159,14 +159,25 @@ public class CameraActivity extends Activity {
         baseAPI.setImage(bitmap);
         String recognizedText = baseAPI.getUTF8Text();
         _field.setText(recognizedText);
+        _field.setClickable(true);
         System.out.println(recognizedText);
         baseAPI.end();
+
+        File fdelete = new File("/DCIM/100ANDRO/make_machine_example.jpg");
+        if (fdelete.exists()) {
+            if (fdelete.delete()) {
+                System.out.println("file Deleted :" + "/DCIM/100ANDRO/make_machine_example.jpg");
+            } else {
+                System.out.println("file not Deleted :" + "/DCIM/100ANDRO/make_machine_example.jpg");
+            }
+        }
     }
 
 
     public void backToMain(View view) {
         Intent resultIntent = new Intent();
-        resultIntent.putExtra(PUBLIC_STATIC_STRING_IDENTIFIER, _field.toString());
+        WIFI_PASSWORD = _field.toString();
+        resultIntent.putExtra(PUBLIC_STATIC_STRING_IDENTIFIER, WIFI_PASSWORD);
         setResult(Activity.RESULT_OK, resultIntent);
         finish();
     }

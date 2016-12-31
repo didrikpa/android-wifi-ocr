@@ -9,6 +9,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
@@ -36,8 +37,12 @@ import static com.development.didrikpa.wifipasswordscanner.R.id.scan_results;
 public class MainActivity extends Activity {
 
     private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1001;
+    private static final int PERMISSIONS_REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 200;
 
     private static final String PUBLIC_STATIC_STRING_IDENTIFIER = "Wifi_Password";
+
+    private static final CharSequence[] setMultiChoiceItems = {"Show password"};
+    private static final boolean[] booleanSetMultiChoiceItems = {false};
 
 
     private WifiManager wifiManager;
@@ -101,7 +106,6 @@ public class MainActivity extends Activity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             password = editText.getText().toString();
-                            //wifiConfiguration = new WifiConfiguration();
                             wifiConfiguration.SSID = "\"" + ssid + "\"";
 
                             List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
@@ -119,6 +123,13 @@ public class MainActivity extends Activity {
 
                         }
 
+                    });
+                    alertDialog.setMultiChoiceItems(setMultiChoiceItems, booleanSetMultiChoiceItems, new DialogInterface.OnMultiChoiceClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                            editText.setInputType(InputType.TYPE_CLASS_TEXT);
+                        }
                     });
                     alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
@@ -155,7 +166,6 @@ public class MainActivity extends Activity {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
                             password = editText.getText().toString();
-                            //wifiConfiguration = new WifiConfiguration();
                             wifiConfiguration.SSID = "\"" + ssid + "\"";
 
                             List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
@@ -173,6 +183,13 @@ public class MainActivity extends Activity {
 
                         }
 
+                    });
+                    alertDialog.setMultiChoiceItems(setMultiChoiceItems, booleanSetMultiChoiceItems, new DialogInterface.OnMultiChoiceClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+                            editText.setInputType(InputType.TYPE_CLASS_TEXT);
+                        }
                     });
                     alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
                         @Override
@@ -241,7 +258,7 @@ public class MainActivity extends Activity {
             wifiManager.getScanResults();
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, 200);
+            requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
         }
     }
 
@@ -292,9 +309,12 @@ public class MainActivity extends Activity {
             SSIDs.clear();
             adapter.notifyDataSetChanged();
             wifiManager.setWifiEnabled(false);
+            wifiToggle.setBackgroundColor(Color.DKGRAY);
         } else if (!wifiManager.isWifiEnabled()) {
             wifiManager.setWifiEnabled(true);
+            wifiToggle.setBackgroundColor(Color.BLUE);
         }
+
     }
 
     public void searchForWifiNetworks(View view) {

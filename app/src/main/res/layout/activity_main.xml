@@ -16,7 +16,8 @@
         android:layout_alignParentEnd="true"
         android:onClick="turnWifiOnOrOff"
         android:focusable="false"
-        android:focusableInTouchMode="false"/>
+        android:focusableInTouchMode="false"
+        android:background="@color/blue"/>
 
     <ListView
         android:layout_width="wrap_content"
