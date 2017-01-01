@@ -5,14 +5,6 @@
     android:layout_height="match_parent"
     android:weightSum="1">
 
-    <Button
-        android:text="Button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/button"
-        android:onClick="backToMain"
-        />
-
     <ImageView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -28,8 +20,21 @@
         android:layout_weight="0.04" />
 
     <Button
-        android:text="Button"
+        android:text="Connect using this password"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="@drawable/roundbutton"
+        android:backgroundTint="@color/blue"
+        android:id="@+id/button"
+        android:onClick="backToMain"
+        />
+
+    <Button
+        android:text="Open camera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/roundbutton"
+        android:backgroundTint="@color/blue"
         android:id="@+id/button2" />
+
 </LinearLayout>

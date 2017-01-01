@@ -24,8 +24,8 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
     private List<String> SSIDs = new ArrayList<>();
     private ArrayAdapter<String> adapter;
 
-    private ToggleButton wifiToggle;
+    private Switch wifiSwitch;
     private ListView scannedResults;
 
     private String password;
@@ -117,7 +117,7 @@ public class MainActivity extends Activity {
 
         adapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, SSIDs);
 
-        wifiToggle = (ToggleButton) findViewById(R.id.toggleWifi);
+        wifiSwitch = (Switch) findViewById(R.id.switchWifi);
         scannedResults = (ListView) findViewById(scan_results);
         scannedResults.setAdapter(adapter);
         scannedResults.setOnItemClickListener(onItemClickListener);
@@ -127,9 +127,9 @@ public class MainActivity extends Activity {
         wifiManager.startScan();
 
         if (wifiManager.isWifiEnabled()) {
-            wifiToggle.setChecked(true);
+            wifiSwitch.setChecked(true);
         } else {
-            wifiToggle.setChecked(false);
+            wifiSwitch.setChecked(true);
         }
 
         registerReceiver(broadcastReceiver, new IntentFilter(WifiManager.SCAN_RESULTS_AVAILABLE_ACTION));
@@ -163,12 +163,12 @@ public class MainActivity extends Activity {
         wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
 
         if (wifiManager.isWifiEnabled()) {
-            wifiToggle.setChecked(true);
+            wifiSwitch.setChecked(true);
             searchForWiFiNetworks();
         } else {
             SSIDs.clear();
             adapter.notifyDataSetChanged();
-            wifiToggle.setChecked(false);
+            wifiSwitch.setChecked(false);
         }
     }
 
