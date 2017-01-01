@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -19,7 +20,8 @@
         android:focusableInTouchMode="false"
         android:background="@drawable/roundbutton"
         android:layout_marginTop="@dimen/activity_horizontal_margin"
-        android:layout_marginRight="@dimen/activity_vertical_margin"/>
+        android:layout_marginRight="@dimen/activity_vertical_margin"
+        tools:ignore="RtlHardcoded" />
 
     <ListView
         android:layout_width="wrap_content"
@@ -39,7 +41,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/search_for_wifi_networks_button"
-        android:onClick="searchForWifiNetworks"
+        android:onClick="searchForWifiNetworksButton"
         android:layout_alignParentBottom="true"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"

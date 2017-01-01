@@ -1,9 +1,7 @@
 package com.development.didrikpa.wifipasswordscanner;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Matrix;
@@ -103,7 +101,6 @@ public class CameraActivity extends Activity {
 
         } catch (Exception e) {
             Log.i("MakeMachine", "onRestoreInstanceState()");
-
         }
     }
 
@@ -161,7 +158,9 @@ public class CameraActivity extends Activity {
         _field.setText(recognizedText);
         _field.setClickable(true);
         System.out.println(recognizedText);
+        baseAPI.stop();
         baseAPI.end();
+
 
         File fdelete = new File("/DCIM/100ANDRO/make_machine_example.jpg");
         if (fdelete.exists()) {
@@ -172,19 +171,11 @@ public class CameraActivity extends Activity {
             }
         }
     }
-
-
     public void backToMain(View view) {
         Intent resultIntent = new Intent();
-        WIFI_PASSWORD = _field.toString();
+        WIFI_PASSWORD = _field.getText().toString();
         resultIntent.putExtra(PUBLIC_STATIC_STRING_IDENTIFIER, WIFI_PASSWORD);
         setResult(Activity.RESULT_OK, resultIntent);
         finish();
     }
-
-    private boolean checkCameraHardware(Context context) {
-        return context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_CAMERA);
-    }
-
-
 }

@@ -40,12 +40,7 @@ public class MainActivity extends Activity {
 
     private static final String PUBLIC_STATIC_STRING_IDENTIFIER = "Wifi_Password";
 
-    private static final CharSequence[] setMultiChoiceItems = {"Show password"};
-    private static final boolean[] booleanSetMultiChoiceItems = {false};
-
-
     private WifiManager wifiManager;
-    private WifiConfiguration wifiConfiguration;
     private List<ScanResult> scanResults;
     private List<String> SSIDs = new ArrayList<>();
     private ArrayAdapter<String> adapter;
@@ -55,8 +50,7 @@ public class MainActivity extends Activity {
 
     private String password;
     private String ssid;
-    private int pos;
-
+    private String authentication;
 
     private BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
         @RequiresApi(api = Build.VERSION_CODES.KITKAT)
@@ -71,158 +65,47 @@ public class MainActivity extends Activity {
     private OnItemClickListener onItemClickListener = new OnItemClickListener() {
         @Override
         public void onItemClick(final AdapterView<?> parent, View view, int position, long id) {
-            pos = position;
+            authentication = scanResults.get(position).capabilities.split(" ")[0].split("-")[0].replaceAll("\\[", "");
             ssid = (String) parent.getItemAtPosition(position);
+
             final EditText editText = new EditText(MainActivity.this);
             editText.setInputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_TEXT_VARIATION_PASSWORD);
             editText.setGravity(Gravity.CENTER);
-            editText.setWidth(50);
 
             AlertDialog.Builder alertDialog = new AlertDialog.Builder(MainActivity.this);
             alertDialog.setTitle(ssid);
             alertDialog.setMessage("Please enter password");
             alertDialog.setView(editText);
 
-            String authentication = scanResults.get(pos).capabilities.split(" ")[0].split("-")[0].replaceAll("\\[", "");
+            if (authentication.equals("WPA") || authentication.equals("WPA2") || authentication.equals("WEP")) {
+                alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        password = editText.getText().toString();
+                        connectToWifi(authentication);
+                        Toast.makeText(getApplicationContext(), "Connecting to " + ssid, Toast.LENGTH_SHORT).show();
+                    }
+                });
+                alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Toast.makeText(getApplicationContext(), "Cancelled ", Toast.LENGTH_SHORT).show();
 
-            wifiConfiguration = new WifiConfiguration();
+                    }
+                });
+                alertDialog.setNeutralButton("Camera", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        Intent intent = new Intent(MainActivity.this, CameraActivity.class);
+                        startActivityForResult(intent, 1);
+                        Toast.makeText(getApplicationContext(), "Starting the camera", Toast.LENGTH_SHORT).show();
 
-            switch (authentication) {
-                case "WPA2":
-                case "WPA":
-                    wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-                    wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-                    wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
-                    wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-                    wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
-                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
-                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-                    wifiConfiguration.preSharedKey = "\"" + password + "\"";
-
-                    alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            password = editText.getText().toString();
-                            wifiConfiguration.SSID = "\"" + ssid + "\"";
-
-                            List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
-                            for (WifiConfiguration i : list) {
-                                if (i.SSID != null && i.SSID.equals("\"" + ssid + "\"")) {
-                                    wifiManager.disconnect();
-                                    wifiManager.enableNetwork(i.networkId, true);
-                                    wifiManager.reconnect();
-
-                                    break;
-                                }
-                            }
-                            wifiManager.addNetwork(wifiConfiguration);
-                            Toast.makeText(getApplicationContext(), "Connecting to " + ssid, Toast.LENGTH_SHORT).show();
-
-                        }
-
-                    });
-                    alertDialog.setMultiChoiceItems(setMultiChoiceItems, booleanSetMultiChoiceItems, new DialogInterface.OnMultiChoiceClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                            editText.setInputType(InputType.TYPE_CLASS_TEXT);
-                        }
-                    });
-                    alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(getApplicationContext(), "Cancelled ", Toast.LENGTH_SHORT).show();
-
-                        }
-                    });
-                    alertDialog.setNeutralButton("Camera", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-                            startActivityForResult(intent, 1);
-                        }
-                    });
-                    alertDialog.show();
-
-                    break;
-                case "WEP":
-                    wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                    wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-                    wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-                    wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
-                    wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED);
-                    wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-                    wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
-                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
-
-                    wifiConfiguration.wepKeys[0] = "\"" + password + "\"";
-                    wifiConfiguration.wepTxKeyIndex = 0;
-
-                    alertDialog.setPositiveButton("OK", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            password = editText.getText().toString();
-                            wifiConfiguration.SSID = "\"" + ssid + "\"";
-
-                            List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
-                            for (WifiConfiguration i : list) {
-                                if (i.SSID != null && i.SSID.equals("\"" + ssid + "\"")) {
-                                    wifiManager.disconnect();
-                                    wifiManager.enableNetwork(i.networkId, true);
-                                    wifiManager.reconnect();
-
-                                    break;
-                                }
-                            }
-                            wifiManager.addNetwork(wifiConfiguration);
-                            Toast.makeText(getApplicationContext(), "Connecting to " + ssid, Toast.LENGTH_SHORT).show();
-
-                        }
-
-                    });
-                    alertDialog.setMultiChoiceItems(setMultiChoiceItems, booleanSetMultiChoiceItems, new DialogInterface.OnMultiChoiceClickListener() {
-
-                        @Override
-                        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-                            editText.setInputType(InputType.TYPE_CLASS_TEXT);
-                        }
-                    });
-                    alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Toast.makeText(getApplicationContext(), "Cancelled ", Toast.LENGTH_SHORT).show();
-
-                        }
-                    });
-                    alertDialog.setNeutralButton("Camera", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            Intent intent = new Intent(MainActivity.this, CameraActivity.class);
-                            startActivityForResult(intent, 1);
-                        }
-                    });
-                    alertDialog.show();
-
-                    break;
-                case "Open":
-                    wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
-                    wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
-                    wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
-                    wifiConfiguration.allowedAuthAlgorithms.clear();
-                    wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
-                    wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
-                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
-                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
-                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
-                    wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
-                    Toast.makeText(getApplicationContext(), "Connecting to " + ssid, Toast.LENGTH_SHORT).show();
-
-                    break;
+                    }
+                });
+                alertDialog.show();
+            } else if (authentication.equals("Open")) {
+                connectToWifi(authentication);
             }
-
         }
     };
 
@@ -271,7 +154,6 @@ public class MainActivity extends Activity {
         }
     }
 
-
     @Override
     public void onStart() {
         super.onStart();
@@ -282,17 +164,7 @@ public class MainActivity extends Activity {
 
         if (wifiManager.isWifiEnabled()) {
             wifiToggle.setChecked(true);
-            wifiManager.startScan();
-            scanResults = wifiManager.getScanResults();
-            SSIDs.clear();
-            if (scanResults.size() > 0) {
-                for (ScanResult result : scanResults) {
-                    if (!SSIDs.contains(result.SSID) && !result.SSID.equals("")) {
-                        SSIDs.add(result.SSID);
-                    }
-                }
-            }
-            adapter.notifyDataSetChanged();
+            searchForWiFiNetworks();
         } else {
             SSIDs.clear();
             adapter.notifyDataSetChanged();
@@ -305,13 +177,11 @@ public class MainActivity extends Activity {
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
-                String pass = data.getStringExtra(PUBLIC_STATIC_STRING_IDENTIFIER);
-                if (pass != null) {
-                    System.out.println(pass);
-                }
+                password = data.getStringExtra(PUBLIC_STATIC_STRING_IDENTIFIER);
+                System.out.println(password + "HEHEHE");
+                connectToWifi(authentication);
             }
         }
-
     }
 
     public void turnWifiOnOrOff(View view) {
@@ -321,26 +191,68 @@ public class MainActivity extends Activity {
             wifiManager.setWifiEnabled(false);
         } else if (!wifiManager.isWifiEnabled()) {
             wifiManager.setWifiEnabled(true);
-            wifiManager.startScan();
-            scanResults = wifiManager.getScanResults();
-            SSIDs.clear();
-            if (scanResults.size() > 0) {
-                for (ScanResult result : scanResults) {
-                    if (!SSIDs.contains(result.SSID) && !result.SSID.equals("")) {
-                        SSIDs.add(result.SSID);
-                    }
-                }
-            }
-            adapter.notifyDataSetChanged();
+            searchForWiFiNetworks();
         }
-
     }
 
-    private void connectToWifi(String security){
+    private void connectToWifi(String authentication) {
 
+        WifiConfiguration wifiConfiguration = new WifiConfiguration();
+        wifiConfiguration.SSID = "\"" + ssid + "\"";
+
+        switch (authentication) {
+            case "WPA2":
+            case "WPA":
+                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+                wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.WPA_PSK);
+                wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+                wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
+                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
+                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+                wifiConfiguration.preSharedKey = "\"" + password + "\"";
+                break;
+            case "WEP":
+                wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+                wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.OPEN);
+                wifiConfiguration.allowedAuthAlgorithms.set(WifiConfiguration.AuthAlgorithm.SHARED);
+                wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+                wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
+                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
+                wifiConfiguration.wepKeys[0] = "\"" + password + "\"";
+                wifiConfiguration.wepTxKeyIndex = 0;
+                break;
+            case "Open":
+                wifiConfiguration.allowedKeyManagement.set(WifiConfiguration.KeyMgmt.NONE);
+                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.RSN);
+                wifiConfiguration.allowedProtocols.set(WifiConfiguration.Protocol.WPA);
+                wifiConfiguration.allowedAuthAlgorithms.clear();
+                wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.CCMP);
+                wifiConfiguration.allowedPairwiseCiphers.set(WifiConfiguration.PairwiseCipher.TKIP);
+                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP40);
+                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.WEP104);
+                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.CCMP);
+                wifiConfiguration.allowedGroupCiphers.set(WifiConfiguration.GroupCipher.TKIP);
+                break;
+        }
+        wifiManager.addNetwork(wifiConfiguration);
+        List<WifiConfiguration> list = wifiManager.getConfiguredNetworks();
+        for (WifiConfiguration i : list) {
+            if (i.SSID != null && i.SSID.equals("\"" + ssid + "\"")) {
+                wifiManager.disconnect();
+                wifiManager.enableNetwork(i.networkId, true);
+                wifiManager.reconnect();
+                break;
+            }
+        }
     }
 
-    public void searchForWifiNetworks(View view) {
+    private void searchForWiFiNetworks() {
         wifiManager.startScan();
         scanResults = wifiManager.getScanResults();
         SSIDs.clear();
@@ -352,6 +264,10 @@ public class MainActivity extends Activity {
             }
         }
         adapter.notifyDataSetChanged();
+
     }
 
+    public void searchForWifiNetworksButton(View view) {
+        searchForWiFiNetworks();
+    }
 }
