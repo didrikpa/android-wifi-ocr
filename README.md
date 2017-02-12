@@ -1,5 +1,12 @@
 # Android-Wifi-Ocr
 
+## Features
 
+* User OCR to enter wifi-password
+* Use QR-code to enter wifi-password (TODO)
 
-The idea of this Android application is to be able to connect to a password protected wifi, using Tess4j OCR to enter the password. The application is under development, and so far it is only possible to enter passwords the good old way. The next step is to implement the OCR-part.
+## TODO
+
+* Implement QR-code compability
+* Improve design
+* Improve performance
