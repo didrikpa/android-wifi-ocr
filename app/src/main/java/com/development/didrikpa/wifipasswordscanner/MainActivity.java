@@ -14,9 +14,11 @@ import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.text.InputType;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -27,6 +29,10 @@ import android.widget.ListView;
 import android.widget.Switch;
 import android.widget.Toast;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -110,6 +116,7 @@ public class MainActivity extends Activity {
     };
 
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -142,6 +149,35 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
         }
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    private void initializeTessdata(){
+        try {
+
+            File mydir = this.getDir("tessdata", Context.MODE_PRIVATE);
+            File traineddata = new File(mydir, "eng.traineddata");
+            FileOutputStream fileOutputStream = new FileOutputStream(traineddata); //openFileOutput("eng.traineddata", Context.MODE_PRIVATE);//new FileOutputStream(Environment.DIRECTORY_DOCUMENTS);
+            InputStream inputStream = this.getAssets().open("tessdata/eng.traineddata");
+            System.out.println(inputStream.available());
+            byte[] buffer = new byte[1024];
+            int length;
+            while((length = inputStream.read(buffer))>0){
+                System.out.println(buffer.length);
+                fileOutputStream.write(buffer, 0, length);
+            }
+            System.out.println(this.getDir("tessdata", Context.MODE_PRIVATE).getAbsoluteFile());
+            System.out.println(this.getDir("tessdata", Context.MODE_PRIVATE).getCanonicalPath());
+            try{
+                inputStream.close();
+            } catch(IOException e){
+                Log.e(this.getLocalClassName(), e.getMessage());
+                //this.getLocalClassName().toString() could be replaced with any (string) tag
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -154,6 +190,7 @@ public class MainActivity extends Activity {
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onStart() {
         super.onStart();
@@ -170,6 +207,14 @@ public class MainActivity extends Activity {
             adapter.notifyDataSetChanged();
             wifiSwitch.setChecked(false);
         }
+
+        System.out.println("HELLO");
+        for (String a:Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).list()) {
+            System.out.println(a);
+
+        }
+        initializeTessdata();
+
     }
 
     @Override

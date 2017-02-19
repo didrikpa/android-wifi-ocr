@@ -1,6 +1,7 @@
 package com.development.didrikpa.wifipasswordscanner;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -151,7 +152,7 @@ public class CameraActivity extends Activity {
         TessBaseAPI baseAPI = new TessBaseAPI();
         baseAPI.setDebug(true);
 
-        File myDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+        File myDir = Environment.getExternalStoragePublicDirectory(this.getDir("tessdata", Context.MODE_PRIVATE).getCanonicalPath());
         baseAPI.init(myDir.toString(), "eng");
         baseAPI.setImage(bitmap);
         String recognizedText = baseAPI.getUTF8Text();
