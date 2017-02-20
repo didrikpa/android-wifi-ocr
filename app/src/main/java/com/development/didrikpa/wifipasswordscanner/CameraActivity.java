@@ -19,8 +19,6 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 
-import com.googlecode.tesseract.android.TessBaseAPI;
-
 import java.io.File;
 
 
@@ -149,10 +147,11 @@ public class CameraActivity extends Activity {
         _image.setImageBitmap(bitmap);
 
 
-        TessBaseAPI baseAPI = new TessBaseAPI();
+        NewBaseAPI baseAPI = new NewBaseAPI();
         baseAPI.setDebug(true);
 
-        File myDir = Environment.getExternalStoragePublicDirectory(this.getDir("tessdata", Context.MODE_PRIVATE).getCanonicalPath());
+        File myDir = new File(this.getDir("tessdata", Context.MODE_PRIVATE).getParent());
+        System.out.println(myDir);
         baseAPI.init(myDir.toString(), "eng");
         baseAPI.setImage(bitmap);
         String recognizedText = baseAPI.getUTF8Text();

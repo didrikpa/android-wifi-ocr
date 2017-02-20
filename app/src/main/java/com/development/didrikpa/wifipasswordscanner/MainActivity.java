@@ -158,22 +158,20 @@ public class MainActivity extends Activity {
 
             File mydir = this.getDir("tessdata", Context.MODE_PRIVATE);
             File traineddata = new File(mydir, "eng.traineddata");
+            System.out.println(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED));
+            System.out.println(traineddata.getCanonicalPath());
             FileOutputStream fileOutputStream = new FileOutputStream(traineddata); //openFileOutput("eng.traineddata", Context.MODE_PRIVATE);//new FileOutputStream(Environment.DIRECTORY_DOCUMENTS);
             InputStream inputStream = this.getAssets().open("tessdata/eng.traineddata");
             System.out.println(inputStream.available());
             byte[] buffer = new byte[1024];
             int length;
             while((length = inputStream.read(buffer))>0){
-                System.out.println(buffer.length);
                 fileOutputStream.write(buffer, 0, length);
             }
-            System.out.println(this.getDir("tessdata", Context.MODE_PRIVATE).getAbsoluteFile());
-            System.out.println(this.getDir("tessdata", Context.MODE_PRIVATE).getCanonicalPath());
             try{
                 inputStream.close();
             } catch(IOException e){
                 Log.e(this.getLocalClassName(), e.getMessage());
-                //this.getLocalClassName().toString() could be replaced with any (string) tag
             }
         } catch (IOException e) {
             e.printStackTrace();
