@@ -9,12 +9,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.net.wifi.ScanResult;
 import android.net.wifi.WifiConfiguration;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.text.InputType;
@@ -131,7 +131,6 @@ public class MainActivity extends Activity {
         scannedResults.refreshDrawableState();
 
         wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
-        wifiManager.startScan();
 
         if (wifiManager.isWifiEnabled()) {
             wifiSwitch.setChecked(true);
@@ -149,28 +148,29 @@ public class MainActivity extends Activity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
         }
+        initializeTessdata();
+
 
     }
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    private void initializeTessdata(){
+    private void initializeTessdata() {
         try {
 
-            File mydir = this.getDir("tessdata", Context.MODE_PRIVATE);
-            File traineddata = new File(mydir, "eng.traineddata");
-            System.out.println(Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED));
-            System.out.println(traineddata.getCanonicalPath());
-            FileOutputStream fileOutputStream = new FileOutputStream(traineddata); //openFileOutput("eng.traineddata", Context.MODE_PRIVATE);//new FileOutputStream(Environment.DIRECTORY_DOCUMENTS);
+            File tessdataDir = new File(getExternalCacheDir(), "tessdata");
+            tessdataDir.mkdir();
+            File traineddata = new File(tessdataDir, "eng.traineddata");
+            Uri trainedUri = Uri.fromFile(traineddata);
+            FileOutputStream fileOutputStream = new FileOutputStream(traineddata);
             InputStream inputStream = this.getAssets().open("tessdata/eng.traineddata");
-            System.out.println(inputStream.available());
             byte[] buffer = new byte[1024];
             int length;
-            while((length = inputStream.read(buffer))>0){
+            while ((length = inputStream.read(buffer)) > 0) {
                 fileOutputStream.write(buffer, 0, length);
             }
-            try{
+            try {
                 inputStream.close();
-            } catch(IOException e){
+            } catch (IOException e) {
                 Log.e(this.getLocalClassName(), e.getMessage());
             }
         } catch (IOException e) {
@@ -199,19 +199,12 @@ public class MainActivity extends Activity {
 
         if (wifiManager.isWifiEnabled()) {
             wifiSwitch.setChecked(true);
-            searchForWiFiNetworks();
         } else {
             SSIDs.clear();
             adapter.notifyDataSetChanged();
             wifiSwitch.setChecked(false);
         }
 
-        System.out.println("HELLO");
-        for (String a:Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).list()) {
-            System.out.println(a);
-
-        }
-        initializeTessdata();
 
     }
 

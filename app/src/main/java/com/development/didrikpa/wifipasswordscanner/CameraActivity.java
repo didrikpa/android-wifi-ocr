@@ -1,7 +1,6 @@
 package com.development.didrikpa.wifipasswordscanner;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,6 +17,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+
+import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
 
@@ -51,7 +52,7 @@ public class CameraActivity extends Activity {
             }
         });
 
-        _path = Environment.getExternalStorageDirectory() + "/DCIM/100ANDRO/make_machine_example.jpg";
+        _path = Environment.getExternalStorageDirectory() + "/DCIM/100ANDRO/ocr-qr-image.jpg";
 
 
     }
@@ -147,30 +148,29 @@ public class CameraActivity extends Activity {
         _image.setImageBitmap(bitmap);
 
 
-        NewBaseAPI baseAPI = new NewBaseAPI();
+        TessBaseAPI baseAPI = new TessBaseAPI();
         baseAPI.setDebug(true);
 
-        File myDir = new File(this.getDir("tessdata", Context.MODE_PRIVATE).getParent());
-        System.out.println(myDir);
+        File myDir = getExternalCacheDir();
         baseAPI.init(myDir.toString(), "eng");
         baseAPI.setImage(bitmap);
         String recognizedText = baseAPI.getUTF8Text();
         _field.setText(recognizedText);
         _field.setClickable(true);
-        System.out.println(recognizedText);
         baseAPI.stop();
         baseAPI.end();
 
 
-        File fdelete = new File("/DCIM/100ANDRO/make_machine_example.jpg");
+        File fdelete = new File("/DCIM/100ANDRO/ocr-qr-image.jpg");
         if (fdelete.exists()) {
             if (fdelete.delete()) {
-                System.out.println("file Deleted :" + "/DCIM/100ANDRO/make_machine_example.jpg");
+                System.out.println("file Deleted :" + "/DCIM/100ANDRO/ocr-qr-image.jpg");
             } else {
-                System.out.println("file not Deleted :" + "/DCIM/100ANDRO/make_machine_example.jpg");
+                System.out.println("file not Deleted :" + "/DCIM/100ANDRO/ocr-qr-image.jpg");
             }
         }
     }
+
     public void backToMain(View view) {
         Intent resultIntent = new Intent();
         WIFI_PASSWORD = _field.getText().toString();
