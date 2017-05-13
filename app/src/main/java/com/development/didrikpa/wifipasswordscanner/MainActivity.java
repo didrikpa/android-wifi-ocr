@@ -1,6 +1,7 @@
 package com.development.didrikpa.wifipasswordscanner;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -18,7 +19,6 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.RequiresApi;
 import android.text.InputType;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.widget.AdapterView;
@@ -116,6 +116,7 @@ public class MainActivity extends Activity {
     };
 
 
+    @SuppressLint("WifiManagerLeak")
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -130,7 +131,7 @@ public class MainActivity extends Activity {
         scannedResults.setOnItemClickListener(onItemClickListener);
         scannedResults.refreshDrawableState();
 
-        wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
+        wifiManager = (WifiManager) this.getSystemService(getApplicationContext().WIFI_SERVICE);
 
         if (wifiManager.isWifiEnabled()) {
             wifiSwitch.setChecked(true);
@@ -158,9 +159,9 @@ public class MainActivity extends Activity {
         try {
 
             File tessdataDir = new File(getExternalCacheDir(), "tessdata");
-            tessdataDir.mkdir();
+            boolean isCreated = tessdataDir.mkdir();
             File traineddata = new File(tessdataDir, "eng.traineddata");
-            Uri trainedUri = Uri.fromFile(traineddata);
+            Uri.fromFile(traineddata);
             FileOutputStream fileOutputStream = new FileOutputStream(traineddata);
             InputStream inputStream = this.getAssets().open("tessdata/eng.traineddata");
             byte[] buffer = new byte[1024];
@@ -171,7 +172,7 @@ public class MainActivity extends Activity {
             try {
                 inputStream.close();
             } catch (IOException e) {
-                Log.e(this.getLocalClassName(), e.getMessage());
+                System.out.println((this.getLocalClassName() + " " + e.getMessage()));
             }
         } catch (IOException e) {
             e.printStackTrace();
@@ -188,14 +189,16 @@ public class MainActivity extends Activity {
         }
     }
 
+    @SuppressLint("WifiManagerLeak")
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     public void onStart() {
         super.onStart();
+        wifiManager = (WifiManager) this.getSystemService(getApplicationContext().WIFI_SERVICE);
+
         scannedResults.setAdapter(adapter);
         scannedResults.setClickable(true);
         scannedResults.setOnItemClickListener(onItemClickListener);
-        wifiManager = (WifiManager) this.getSystemService(Context.WIFI_SERVICE);
 
         if (wifiManager.isWifiEnabled()) {
             wifiSwitch.setChecked(true);
@@ -204,8 +207,6 @@ public class MainActivity extends Activity {
             adapter.notifyDataSetChanged();
             wifiSwitch.setChecked(false);
         }
-
-
     }
 
     @Override
@@ -214,7 +215,6 @@ public class MainActivity extends Activity {
         if (requestCode == 1) {
             if (resultCode == Activity.RESULT_OK) {
                 password = data.getStringExtra(PUBLIC_STATIC_STRING_IDENTIFIER);
-                System.out.println(password + "HEHEHE");
                 connectToWifi(authentication);
             }
         }

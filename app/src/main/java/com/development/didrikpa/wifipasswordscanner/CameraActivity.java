@@ -21,9 +21,11 @@ import android.widget.ImageView;
 import com.googlecode.tesseract.android.TessBaseAPI;
 
 import java.io.File;
+import java.io.IOException;
 
 
 public class CameraActivity extends Activity {
+
 
     protected Button _button;
     protected ImageView _image;
@@ -32,9 +34,6 @@ public class CameraActivity extends Activity {
     protected boolean _taken;
 
     protected static final String PHOTO_TAKEN = "photo_taken";
-
-    private static String PUBLIC_STATIC_STRING_IDENTIFIER = "Wifi_Password";
-    private static String WIFI_PASSWORD = "";
 
 
     @Override
@@ -106,6 +105,7 @@ public class CameraActivity extends Activity {
 
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     protected void onPhotoTaken() throws Exception {
+
         _taken = true;
 
         BitmapFactory.Options options = new BitmapFactory.Options();
@@ -113,7 +113,13 @@ public class CameraActivity extends Activity {
 
         Bitmap bitmap = BitmapFactory.decodeFile(_path, options);
 
-        ExifInterface exif = new ExifInterface(_path);
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(_path);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        assert exif != null;
         int exifOrientation = exif.getAttributeInt(
                 ExifInterface.TAG_ORIENTATION,
                 ExifInterface.ORIENTATION_NORMAL);
@@ -136,11 +142,9 @@ public class CameraActivity extends Activity {
             int w = bitmap.getWidth();
             int h = bitmap.getHeight();
 
-            // Setting pre rotate
             Matrix mtx = new Matrix();
             mtx.preRotate(rotate);
 
-            // Rotating Bitmap & convert to ARGB_8888, required by tess
             bitmap = Bitmap.createBitmap(bitmap, 0, 0, w, h, mtx, false);
         }
         bitmap = bitmap.copy(Bitmap.Config.ARGB_8888, true);
@@ -148,17 +152,32 @@ public class CameraActivity extends Activity {
         _image.setImageBitmap(bitmap);
 
 
-        TessBaseAPI baseAPI = new TessBaseAPI();
-        baseAPI.setDebug(true);
+        final Bitmap finalBitmap = bitmap;
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
 
-        File myDir = getExternalCacheDir();
-        baseAPI.init(myDir.toString(), "eng");
-        baseAPI.setImage(bitmap);
-        String recognizedText = baseAPI.getUTF8Text();
-        _field.setText(recognizedText);
-        _field.setClickable(true);
-        baseAPI.stop();
-        baseAPI.end();
+                TessBaseAPI baseAPI = new TessBaseAPI();
+                baseAPI.setDebug(true);
+
+                File myDir = getExternalCacheDir();
+                assert myDir != null;
+                baseAPI.init(myDir.toString(), "eng");
+                baseAPI.setImage(finalBitmap);
+                final String recognizedText = baseAPI.getUTF8Text();
+                _field.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        _field.setText(recognizedText);
+                        _field.setClickable(true);
+                    }
+                });
+
+                baseAPI.stop();
+                baseAPI.end();
+
+            }
+        }).start();
 
 
         File fdelete = new File("/DCIM/100ANDRO/ocr-qr-image.jpg");
@@ -173,7 +192,8 @@ public class CameraActivity extends Activity {
 
     public void backToMain(View view) {
         Intent resultIntent = new Intent();
-        WIFI_PASSWORD = _field.getText().toString();
+        String WIFI_PASSWORD = _field.getText().toString();
+        String PUBLIC_STATIC_STRING_IDENTIFIER = "Wifi_Password";
         resultIntent.putExtra(PUBLIC_STATIC_STRING_IDENTIFIER, WIFI_PASSWORD);
         setResult(Activity.RESULT_OK, resultIntent);
         finish();
