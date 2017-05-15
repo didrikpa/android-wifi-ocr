@@ -43,6 +43,7 @@ public class MainActivity extends Activity {
 
     private static final int PERMISSIONS_REQUEST_CODE_ACCESS_COARSE_LOCATION = 1001;
     private static final int PERMISSIONS_REQUEST_CODE_WRITE_EXTERNAL_STORAGE = 200;
+    private static final int PERMISSIONS_REQUEST_CODE_CAMERA = 1;
 
     private static final String PUBLIC_STATIC_STRING_IDENTIFIER = "Wifi_Password";
 
@@ -148,6 +149,10 @@ public class MainActivity extends Activity {
         }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
             requestPermissions(new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE}, PERMISSIONS_REQUEST_CODE_WRITE_EXTERNAL_STORAGE);
+        }
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M && checkSelfPermission(Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED){
+            requestPermissions(new String[]{Manifest.permission.CAMERA}, PERMISSIONS_REQUEST_CODE_CAMERA);
         }
         initializeTessdata();
 

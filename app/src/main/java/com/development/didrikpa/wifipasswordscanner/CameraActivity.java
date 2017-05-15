@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
@@ -26,11 +27,13 @@ import java.io.IOException;
 
 public class CameraActivity extends Activity {
 
+    private static boolean first = true;
 
     protected Button _button;
     protected ImageView _image;
     protected EditText _field;
     protected String _path;
+    protected ProgressBar _progressbar;
     protected boolean _taken;
 
     protected static final String PHOTO_TAKEN = "photo_taken";
@@ -43,6 +46,8 @@ public class CameraActivity extends Activity {
 
         _image = (ImageView) findViewById(R.id.imageView);
         _field = (EditText) findViewById(R.id.editText);
+        _field.setClickable(false);
+        _progressbar = (ProgressBar) findViewById(R.id.progressBar);
         _button = (Button) findViewById(R.id.button2);
         _button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -51,9 +56,18 @@ public class CameraActivity extends Activity {
             }
         });
 
-        _path = Environment.getExternalStorageDirectory() + "/DCIM/100ANDRO/ocr-qr-image.jpg";
+        _path = Environment.getExternalStorageDirectory() + "/ocr-qr-image.jpg";
 
+        if (first){
+            startCameraActivity();
+            first = false;
+        }
 
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
     }
 
     protected void startCameraActivity() {
@@ -107,6 +121,12 @@ public class CameraActivity extends Activity {
     protected void onPhotoTaken() throws Exception {
 
         _taken = true;
+        _progressbar.post(new Runnable() {
+            @Override
+            public void run() {
+                _progressbar.setVisibility(View.VISIBLE);
+            }
+        });
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 4;
@@ -156,7 +176,6 @@ public class CameraActivity extends Activity {
         new Thread(new Runnable() {
             @Override
             public void run() {
-
                 TessBaseAPI baseAPI = new TessBaseAPI();
                 baseAPI.setDebug(true);
 
@@ -179,15 +198,15 @@ public class CameraActivity extends Activity {
             }
         }).start();
 
-
-        File fdelete = new File("/DCIM/100ANDRO/ocr-qr-image.jpg");
+        File fdelete = new File(Environment.getExternalStorageDirectory() + "/ocr-qr-image.jpg");
         if (fdelete.exists()) {
             if (fdelete.delete()) {
-                System.out.println("file Deleted :" + "/DCIM/100ANDRO/ocr-qr-image.jpg");
-            } else {
-                System.out.println("file not Deleted :" + "/DCIM/100ANDRO/ocr-qr-image.jpg");
+                System.out.println("file Deleted :" + "/ocr-qr-image.jpg");
             }
+        } else {
+            System.out.println("file not Deleted :" + "/ocr-qr-image.jpg");
         }
+
     }
 
     public void backToMain(View view) {
