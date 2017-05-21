@@ -12,12 +12,10 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.annotation.RequiresApi;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.ProgressBar;
 
 import com.googlecode.tesseract.android.TessBaseAPI;
 
@@ -27,13 +25,10 @@ import java.io.IOException;
 
 public class CameraActivity extends Activity {
 
-    private static boolean first = true;
-
     protected Button _button;
     protected ImageView _image;
     protected EditText _field;
     protected String _path;
-    protected ProgressBar _progressbar;
     protected boolean _taken;
 
     protected static final String PHOTO_TAKEN = "photo_taken";
@@ -47,7 +42,6 @@ public class CameraActivity extends Activity {
         _image = (ImageView) findViewById(R.id.imageView);
         _field = (EditText) findViewById(R.id.editText);
         _field.setClickable(false);
-        _progressbar = (ProgressBar) findViewById(R.id.progressBar);
         _button = (Button) findViewById(R.id.button2);
         _button.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,16 +52,16 @@ public class CameraActivity extends Activity {
 
         _path = Environment.getExternalStorageDirectory() + "/ocr-qr-image.jpg";
 
-        if (first){
-            startCameraActivity();
-            first = false;
-        }
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        if (getIntent().getStringExtra("activity").equals("main")) {
+            getIntent().putExtra("activity", "camera");
+            startCameraActivity();
+        }
+
     }
 
     protected void startCameraActivity() {
@@ -83,12 +77,9 @@ public class CameraActivity extends Activity {
     @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        Log.i("MakeMachine", "resultCode: " + resultCode);
         switch (resultCode) {
             case 0:
-                Log.i("MakeMachine", "User cancelled");
                 break;
-
             case -1:
                 try {
                     onPhotoTaken();
@@ -113,7 +104,7 @@ public class CameraActivity extends Activity {
             }
 
         } catch (Exception e) {
-            Log.i("MakeMachine", "onRestoreInstanceState()");
+            e.getCause();
         }
     }
 
@@ -121,12 +112,6 @@ public class CameraActivity extends Activity {
     protected void onPhotoTaken() throws Exception {
 
         _taken = true;
-        _progressbar.post(new Runnable() {
-            @Override
-            public void run() {
-                _progressbar.setVisibility(View.VISIBLE);
-            }
-        });
 
         BitmapFactory.Options options = new BitmapFactory.Options();
         options.inSampleSize = 4;
@@ -184,6 +169,7 @@ public class CameraActivity extends Activity {
                 baseAPI.init(myDir.toString(), "eng");
                 baseAPI.setImage(finalBitmap);
                 final String recognizedText = baseAPI.getUTF8Text();
+
                 _field.post(new Runnable() {
                     @Override
                     public void run() {
@@ -199,13 +185,8 @@ public class CameraActivity extends Activity {
         }).start();
 
         File fdelete = new File(Environment.getExternalStorageDirectory() + "/ocr-qr-image.jpg");
-        if (fdelete.exists()) {
-            if (fdelete.delete()) {
-                System.out.println("file Deleted :" + "/ocr-qr-image.jpg");
-            }
-        } else {
-            System.out.println("file not Deleted :" + "/ocr-qr-image.jpg");
-        }
+        boolean deleted = fdelete.delete();
+
 
     }
 
