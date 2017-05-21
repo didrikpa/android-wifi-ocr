@@ -8,48 +8,48 @@
         android:layout_height="match_parent">
 
         <Button
-            android:id="@+id/choose_network"
+            android:id="@+id/select"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentTop="true"
             android:layout_marginTop="108dp"
-            android:text="Choose network"
-            android:layout_alignRight="@+id/qr_code_2"
-            android:layout_alignEnd="@+id/qr_code_2"
-            android:layout_alignLeft="@+id/qr_code_2"
-            android:layout_alignStart="@+id/qr_code_2" />
+            android:text="Select network"
+            android:layout_alignRight="@+id/qrp"
+            android:layout_alignEnd="@+id/qrp"
+            android:layout_alignLeft="@+id/qrp"
+            android:layout_alignStart="@+id/qrp" />
 
         <Button
-            android:id="@+id/ssid_password"
+            android:id="@+id/ssidpass"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="36dp"
             android:text="SSID and Password"
-            android:layout_below="@+id/choose_network"
-            android:layout_alignLeft="@+id/choose_network"
-            android:layout_alignStart="@+id/choose_network"
-            android:layout_alignRight="@+id/choose_network"
-            android:layout_alignEnd="@+id/choose_network" />
+            android:layout_below="@+id/select"
+            android:layout_alignLeft="@+id/select"
+            android:layout_alignStart="@+id/select"
+            android:layout_alignRight="@+id/select"
+            android:layout_alignEnd="@+id/select" />
 
         <Button
-            android:id="@+id/qr_code"
+            android:id="@+id/qrw"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="36dp"
             android:text="QR code for passwords"
-            android:layout_below="@+id/ssid_password"
-            android:layout_alignRight="@+id/ssid_password"
-            android:layout_alignEnd="@+id/ssid_password"
-            android:layout_alignLeft="@+id/ssid_password"
-            android:layout_alignStart="@+id/ssid_password" />
+            android:layout_below="@+id/ssidpass"
+            android:layout_alignRight="@+id/ssidpass"
+            android:layout_alignEnd="@+id/ssidpass"
+            android:layout_alignLeft="@+id/ssidpass"
+            android:layout_alignStart="@+id/ssidpass" />
 
         <Button
-            android:id="@+id/qr_code_2"
+            android:id="@+id/qrp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="QR code SSID and Password"
             android:layout_marginTop="36dp"
-            android:layout_below="@+id/qr_code"
+            android:layout_below="@+id/qrw"
             android:layout_centerHorizontal="true" />
     </RelativeLayout>
 </LinearLayout>
