@@ -2,55 +2,57 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:focusable="false"
-    android:focusableInTouchMode="false">
+    android:focusableInTouchMode="false"
+    android:orientation="vertical">
 
-    <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/scan_results"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:clickable="true"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:layout_above="@+id/search_for_wifi_networks_button"
-        android:layout_below="@+id/switchWifi"
-        android:layout_alignParentRight="true"
-        android:layout_alignParentEnd="true" />
 
     <Button
-        android:text="@string/search_for_networks"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/search_for_wifi_networks_button"
-        android:onClick="searchForWifiNetworksButton"
-        android:layout_alignParentBottom="true"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:background="@drawable/roundbutton"
-        android:backgroundTint="@color/blue"
-        android:layout_marginRight="@dimen/activity_horizontal_margin"
-        android:layout_marginLeft="@dimen/activity_horizontal_margin"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"/>
-
-    <Switch
-        android:text=""
+        android:id="@+id/select"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="turnWifiOnOrOff"
-        android:focusable="false"
-        android:focusableInTouchMode="false"
-        android:id="@+id/switchWifi"
-        android:layout_marginBottom="@dimen/activity_vertical_margin"
-        android:layout_marginTop="@dimen/activity_vertical_margin"
-        android:layout_marginRight="@dimen/activity_vertical_margin"
-        android:layout_marginEnd="@dimen/activity_vertical_margin"
-        android:layout_alignRight="@+id/search_for_wifi_networks_button"
-        android:layout_alignEnd="@+id/search_for_wifi_networks_button" />
+        android:layout_alignEnd="@+id/qrp"
+        android:layout_alignLeft="@+id/qrp"
+        android:layout_alignParentTop="true"
+        android:layout_alignRight="@+id/qrp"
+        android:layout_alignStart="@+id/qrp"
+        android:layout_marginTop="108dp"
+        android:onClick="goToSearchView"
+        android:text="@string/select_network" />
+
+    <Button
+        android:id="@+id/ssidpass"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/select"
+        android:layout_alignLeft="@+id/select"
+        android:layout_alignRight="@+id/select"
+        android:layout_alignStart="@+id/select"
+        android:layout_below="@+id/select"
+        android:layout_marginTop="36dp"
+        android:text="@string/ssid_and_password" />
+
+    <Button
+        android:id="@+id/qrw"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignEnd="@+id/ssidpass"
+        android:layout_alignLeft="@+id/ssidpass"
+        android:layout_alignRight="@+id/ssidpass"
+        android:layout_alignStart="@+id/ssidpass"
+        android:layout_below="@+id/ssidpass"
+        android:layout_marginTop="36dp"
+        android:text="@string/qr_code_for_passwords" />
+
+    <Button
+        android:id="@+id/qrp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/qrw"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="36dp"
+        android:text="@string/qr_code_ssid_and_password" />
 
 
 </RelativeLayout>
+

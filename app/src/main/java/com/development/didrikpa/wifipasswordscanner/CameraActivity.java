@@ -57,7 +57,7 @@ public class CameraActivity extends Activity {
     @Override
     public void onStart() {
         super.onStart();
-        if (getIntent().getStringExtra("activity").equals("main")) {
+        if (getIntent().getStringExtra("activity").equals("search")) {
             getIntent().putExtra("activity", "camera");
             startCameraActivity();
         }
